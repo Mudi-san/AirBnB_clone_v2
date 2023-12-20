@@ -1,30 +1,28 @@
 #!/usr/bin/python3
-"""Defines the User class."""
-from models.base_model import Base
-from models.base_model import BaseModel
-from sqlalchemy import Column
-from sqlalchemy import String
+"""This is the state class"""
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
+from models.city import City
 
 
-class User(BaseModel, Base):
-    """Represents a user for a MySQL database.
-
-    Inherits from SQLAlchemy Base and links to the MySQL table users.
-
+class State(BaseModel, Base):
+    """This is the class for State
     Attributes:
-        __tablename__ (str): The name of the MySQL table to store users.
-        email: (sqlalchemy String): The user's email address.
-        password (sqlalchemy String): The user's password.
-        first_name (sqlalchemy String): The user's first name.
-        last_name (sqlalchemy String): The user's last name.
-        places (sqlalchemy relationship): The User-Place relationship.
-        reviews (sqlalchemy relationship): The User-Review relationship.
+        name: input name
     """
-    __tablename__ = "users"
-    email = Column(String(128), nullable=False)
-    password = Column(String(128), nullable=False)
-    first_name = Column(String(128))
-    last_name = Column(String(128))
-    places = relationship("Place", backref="user", cascade="delete")
-    reviews = relationship("Review", backref="user", cascade="delete")
+    __tablename__ = "states"
+    name = Column(String(128), nullable=False)
+    cities = relationship("City", cascade="all,delete", backref="state")
+
+    @property
+    def cities(self):
+        """  getter attribute cities that returns the list of
+        City instances with state_id equals to the current State.id """
+        from models import storage
+        allcities = storage.all(City)
+        c = []
+        for k, v in allcities.items():
+            if v.state_id == self.id:
+                c.append(v)
+        return c
